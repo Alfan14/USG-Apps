@@ -1,0 +1,24 @@
+{
+  "name": "usg-maternal-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for USG Maternal Healthcare System (Mobile App, Backend API, USG Kiosk Recorder)",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix mobile install && npm --prefix usg-records install",
+    "dev": "concurrently -k -n backend,mobile,kiosk \"npm --prefix backend run dev\" \"npm --prefix mobile run start\" \"npm --prefix usg-records run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:mobile": "npm --prefix mobile run start",
+    "dev:kiosk": "npm --prefix usg-records run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:kiosk": "npm --prefix usg-records run build",
+    "test:backend": "npm --prefix backend test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "workspaces": [
+    "backend",
+    "mobile",
+    "usg-records"
+  ]
+}

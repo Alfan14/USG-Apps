@@ -1,0 +1,260 @@
+{
+  "info": {
+    "_postman_id": "c8a41bf6-90e8-4fd3-a75d-387063f68ad1",
+    "name": "USG & Maternal Health API",
+    "description": "Central API for hospital USG recording laptop ingestion and patient mobile app streaming & maternal health features.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "deviceKey",
+      "value": "usg-recorder-secret-key-123",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Device - Ingest New USG Video",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Device-Key",
+            "value": "{{deviceKey}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patient_identifier\": \"12345678\",\n  \"video_url\": \"https://pub-xxxx.r2.dev/recordings/12345678-a8f3b2c1d4e5.mp4\",\n  \"filename\": \"12345678-a8f3b2c1d4e5.mp4\",\n  \"duration_seconds\": 142,\n  \"recorded_at\": \"2026-10-11T20:15:00.000Z\",\n  \"doctor_name\": \"dr. H. Santoso, Sp.OG\",\n  \"notes\": \"Detak jantung janin normal (142 bpm), gerakan aktif.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/recordings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "recordings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Patient - Login (Mock RM)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) {",
+              "    pm.collectionVariables.set(\"token\", jsonData.token);",
+              "    console.log(\"Saved JWT token to collection variable: token\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"patient_identifier\": \"12345678\",\n  \"birth_date\": \"1996-05-14\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Patient - Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "profile"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Patient - Get USG Recordings",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/recordings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "recordings"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Patient - Get Pregnancy Tips",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/tips?trimester=2",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "tips"],
+          "query": [
+            {
+              "key": "trimester",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Patient - Register Push Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"expo_push_token\": \"ExponentPushToken[mock-device-push-token-12345]\",\n  \"device_platform\": \"android\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/push-token",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "push-token"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Patient - Get Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/notifications",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "notifications"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Patient - Mark All Notifications Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/notifications/read-all",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "notifications", "read-all"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. Patient - Mark Single Notification Read",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/patient/notifications/:id/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "patient", "notifications", ":id", "read"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "notification-uuid-here"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
